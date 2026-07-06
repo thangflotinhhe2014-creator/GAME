@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Giang Đô - Game</title>
+    <title>Thế Giới Tận Thế</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { overflow: hidden; }
 
         /* === MÀN HÌNH SẢNH CHỜ === */
         #lobby-screen {
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=90') center / cover no-repeat;
@@ -25,48 +23,126 @@
         }
 
         .welcome-text {
-            font-size: 18px;
+            font-size: 20px;
             color: #cccccc;
-            margin-bottom: 8px;
-            text-shadow: 0 0 8px rgba(0,0,0,0.8);
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #000;
         }
 
-        .title-text {
-            font-size: 48px;
+        .main-title {
+            font-size: 52px;
             font-weight: bold;
             color: #ff3333;
-            margin-bottom: 50px;
-            text-shadow: 0 0 12px rgba(0,0,0,0.9);
-            letter-spacing: 3px;
+            margin-bottom: 60px;
+            text-shadow: 0 0 15px #000;
+            letter-spacing: 4px;
+            text-align: center;
         }
 
-        .play-button {
-            width: 220px;
-            height: 70px;
+        /* Nút Play chính */
+        .play-main-btn {
+            width: 240px;
+            height: 75px;
             background-color: #2ecc71;
-            border: none;
-            border-radius: 8px;
-            font-size: 28px;
+            border: 3px solid #1e8449;
+            border-radius: 12px;
+            font-size: 30px;
             font-weight: bold;
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: 0.2s;
         }
 
-        .play-button:active {
+        .play-main-btn:active {
             transform: scale(0.96);
             background-color: #27ae60;
         }
 
-        /* === KHU VỰC GAME (ẨN BAN ĐẦU) === */
+        /* === KHUNG LỰA CHỌN BẢN ĐỒ === */
+        #map-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(50, 50, 50, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .map-option {
+            width: 90%;
+            max-width: 500px;
+            height: 100px;
+            background-color: #222;
+            border: 2px solid #444;
+            border-radius: 10px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        /* Phần ảnh 1/3 */
+        .map-img {
+            width: 33.33%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Phần tên vùng 1/5 */
+        .map-name {
+            width: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+            border-left: 1px solid #555;
+            border-right: 1px solid #555;
+        }
+
+        /* Phần nút Play 1/2 còn lại */
+        .map-play {
+            width: 46.67%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .play-green { color: #2ecc71; }
+        .play-gray { color: #888; }
+
+        /* Nút đóng */
+        .close-btn {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* === KHU VỰC GAME === */
         #game-container {
             display: none;
             width: 100vw;
             height: 100vh;
         }
 
-        /* Giữ nguyên giao diện game cũ */
         #crosshair {
             position: fixed; top: 50%; left: 50%;
             width: 20px; height: 20px;
@@ -130,8 +206,41 @@
     <!-- === MÀN HÌNH SẢNH CHỜ === -->
     <div id="lobby-screen">
         <p class="welcome-text">chào mừng đến</p>
-        <h1 class="title-text">Giang đô</h1>
-        <button class="play-button">Play</button>
+        <h1 class="main-title">THẾ GIỚI TẬN THẾ</h1>
+        <button class="play-main-btn">Play</button>
+    </div>
+
+    <!-- === KHUNG LỰA CHỌN BẢN ĐỒ === -->
+    <div id="map-selector">
+        <!-- Khung 1: Giang Đô -->
+        <div class="map-option">
+            <div class="map-img" style="background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+            <div class="map-name">Giang Đô</div>
+            <div class="map-play play-green">Play</div>
+        </div>
+
+        <!-- Khung 2: Tây Châu -->
+        <div class="map-option">
+            <div class="map-img" style="background-image: url('https://cdn-icons-png.flaticon.com/512/3064/3064155.png')"></div>
+            <div class="map-name">Tây Châu</div>
+            <div class="map-play play-gray">Play</div>
+        </div>
+
+        <!-- Khung 3: Diêm Nam -->
+        <div class="map-option">
+            <div class="map-img" style="background-image: url('https://cdn-icons-png.flaticon.com/512/3064/3064155.png')"></div>
+            <div class="map-name">Diêm Nam</div>
+            <div class="map-play play-gray">Play</div>
+        </div>
+
+        <!-- Khung 4: Kinh Thành -->
+        <div class="map-option">
+            <div class="map-img" style="background-image: url('https://cdn-icons-png.flaticon.com/512/3064/3064155.png')"></div>
+            <div class="map-name">Kinh Thành</div>
+            <div class="map-play play-gray">Play</div>
+        </div>
+
+        <button class="close-btn">Đóng</button>
     </div>
 
     <!-- === KHU VỰC GAME === -->
@@ -163,16 +272,32 @@
     </div>
 
     <script>
-        // === NÚT PLAY - TẠM THỜI CHƯA LÀM GÌ ===
-        document.querySelector('.play-button').addEventListener('click', () => {
-            // Bạn có thể thêm chức năng sau này, bây giờ để trống
-            console.log('Nút Play đã được nhấn');
-            // Khi muốn vào game thì bỏ dấu // ở 2 dòng bên dưới:
-            // document.getElementById('lobby-screen').style.display = 'none';
-            // document.getElementById('game-container').style.display = 'block';
+        // === CHỨC NĂNG CHUYỂN MÀN HÌNH ===
+        const lobby = document.getElementById('lobby-screen');
+        const mapSelector = document.getElementById('map-selector');
+        const gameContainer = document.getElementById('game-container');
+
+        // Mở khung chọn bản đồ
+        document.querySelector('.play-main-btn').addEventListener('click', () => {
+            lobby.style.display = 'none';
+            mapSelector.style.display = 'flex';
         });
 
-        // === CODE GAME GIỐNG NHƯ TRƯỚC ===
+        // Đóng khung chọn bản đồ
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            mapSelector.style.display = 'none';
+            lobby.style.display = 'flex';
+        });
+
+        // Ấn vào Giang Đô (tạm thời chưa làm gì)
+        document.querySelector('.map-option').addEventListener('click', () => {
+            console.log('Đã chọn Giang Đô');
+            // Sau này muốn vào game thì bỏ dấu // ở 2 dòng dưới:
+            // mapSelector.style.display = 'none';
+            // gameContainer.style.display = 'block';
+        });
+
+        // === CODE GAME ===
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB);
         scene.fog = new THREE.Fog(0x87CEEB, 30, 70);
@@ -183,7 +308,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
-        document.getElementById('game-container').appendChild(renderer.domElement);
+        gameContainer.appendChild(renderer.domElement);
 
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(20, 50, 20);
